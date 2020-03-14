@@ -28,7 +28,7 @@ namespace SocksSharp
         private NetworkStream connectionNetworkStream;
 
         #region Properties
-
+        
         /// <summary>
         /// Gets a current ProxyClient 
         /// </summary>
@@ -66,6 +66,11 @@ namespace SocksSharp
         {
             get => DecompressionMethods.GZip | DecompressionMethods.Deflate;
         }
+
+        /// <summary>
+        /// Gets or sets SSL Protocols used by the handler.
+        /// </summary>
+        public SslProtocols SslProtocols { get; set; } = SslProtocols.Tls | SslProtocols.Tls11 | SslProtocols.Tls12;
 
         /// <summary>
         /// Gets or sets a value that indicates whether the handler uses the CookieContainer
@@ -177,11 +182,8 @@ namespace SocksSharp
             {
                 try
                 {
-                    SslStream sslStream;
-
-                    sslStream = new SslStream(connectionNetworkStream, false, ServerCertificateCustomValidationCallback);
-
-                    sslStream.AuthenticateAsClient(uri.Host);
+                    var sslStream = new SslStream(connectionNetworkStream, false, ServerCertificateCustomValidationCallback);
+                    sslStream.AuthenticateAsClient(uri.Host, null, SslProtocols, false);
                     connectionCommonStream = sslStream;
                 }
                 catch (Exception ex)
